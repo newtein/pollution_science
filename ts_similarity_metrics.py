@@ -10,15 +10,22 @@ class TSSimilarityMetrics:
         self.x = x
         self.y = y
 
+
     def correlation(self):
-        return np.corrcoef(self.x, self.y)[0][1]
+        try:
+            return np.corrcoef(self.x, self.y)[0][1]
+        except:
+            return None
 
     def dtw(self):
         """
         dynamic time wrapping
         """
-        distance, _ = fastdtw(self.x, self.y, dist=euclidean)
-        return distance
+        try:
+            distance, _ = fastdtw(self.x, self.y, dist=euclidean)
+            return distance
+        except:
+            return None
 
     @staticmethod
     def sanitize(a):
@@ -27,10 +34,13 @@ class TSSimilarityMetrics:
         return a
 
     def euclidean_distance(self):
-        a, b = self.x, self.y
-        a = self.sanitize(a)
-        b = self.sanitize(b)
-        return np.linalg.norm(a - b)
+        try:
+            a, b = self.x, self.y
+            a = self.sanitize(a)
+            b = self.sanitize(b)
+            return np.linalg.norm(a - b)
+        except:
+            return None
 
     def cdtw_dist(self, r=0):
         """
@@ -40,8 +50,11 @@ class TSSimilarityMetrics:
             norm = False, #normalization
             compute_path = True)
         """
-        settings = pydtw.Settings(compute_path=False)
-        return pydtw.dtw(self.x, self.y, settings).get_dist()
+        try:
+            settings = pydtw.Settings(compute_path=False)
+            return pydtw.dtw(self.x, self.y, settings).get_dist()
+        except:
+            return None
 
     def get_report(self):
         response = OrderedDict({
@@ -52,6 +65,7 @@ class TSSimilarityMetrics:
             "DTW": self.dtw(),
             "C DTW": self.cdtw_dist()
         })
+        response = {i:j for i,j in response.items() if j not in {None, np.nan, ''}}
         return response
 
 

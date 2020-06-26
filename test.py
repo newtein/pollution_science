@@ -5,14 +5,14 @@ import matplotlib.pyplot as plt
 
 
 if __name__ == '__main__':
-    filter_data_obj = FilterData('2020', 'PM2')
+    filter_data_obj = FilterData( 'PM2', year='2020')
     select_columns = ['id', 'County Name', '1st Max Value']
     where_payload = {'State Name': 'California'}
     cities = filter_data_obj.filter_df(select_columns, where_payload)['County Name'].unique()
 
-    where_payload_city1 = {'County Name': 'Santa Barbara', 'id': '6_83_11'}
+    where_payload_city1 = {'County Name': 'Santa Barbara', 'id': '06_083_0011'}
     city_1 = filter_data_obj.filter_df(select_columns, where_payload_city1)
-    where_payload_city2 = {'County Name': 'Santa Barbara', 'id': '6_83_2011'}
+    where_payload_city2 = {'County Name': 'Santa Barbara', 'id': '06_083_2011'}
     city_2 = filter_data_obj.filter_df(select_columns, where_payload_city2)
 
     city_1_levels = city_1['1st Max Value']

@@ -3,7 +3,7 @@ from copy import copy
 
 
 class ReadData:
-    def __init__(self, year, pollutant, observation_type="daily"):
+    def __init__(self, pollutant, year='2020', observation_type="daily"):
         self.year = year
         self.pollutant = pollutant
         self.observation_type = observation_type
@@ -26,11 +26,16 @@ class ReadData:
         "State Code","County Code","Site Num"
         """
         filename = self.get_file_name()
-        df = pd.read_csv(filename)
+        df = pd.read_csv(filename, dtype={'State Code': str, 'County Code': str, 'Site Num':str})
         df['id'] = df.apply(self.create_id, axis=1)
+        df["Date Local"] = pd.to_datetime(df["Date Local"])
+        df = df.sort_values(by='Date Local')
+        df = df[df['Sample Duration']=='24-HR BLK AVG']
         return copy(df)
 
 
+
 if __name__ == "__main__":
-    obj = ReadData('2020', 'PM')
+    obj = ReadData('PM2', year='2020')
     print (obj.get_pandas_obj().head(2))
+    print (obj.get_pandas_obj_years())
