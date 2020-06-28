@@ -25,8 +25,8 @@ class PreprocessTimeseries:
         return diff
 
     def signal_detrend(self, x):
-        if type(x) not in [list]:
-            x = x.tolist()
+        # if type(x) not in [list]:
+        #     x = x.tolist()
         x = self.get_not_null(x)
         return signal.detrend(x)
 

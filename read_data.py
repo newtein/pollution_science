@@ -1,5 +1,5 @@
 import pandas as pd
-from copy import copy
+from copy import copy, deepcopy
 
 
 class ReadData:
@@ -26,12 +26,14 @@ class ReadData:
         "State Code","County Code","Site Num"
         """
         filename = self.get_file_name()
-        df = pd.read_csv(filename, dtype={'State Code': str, 'County Code': str, 'Site Num':str})
+        df = pd.read_csv(filename, dtype={'State Code': str, 'County Code': str, 'Site Num':str},
+                         parse_dates=['Date Local'])
         df['id'] = df.apply(self.create_id, axis=1)
-        df["Date Local"] = pd.to_datetime(df["Date Local"])
         df = df.sort_values(by='Date Local')
         df = df[df['Sample Duration']=='24-HR BLK AVG']
-        return copy(df)
+        return df
+
+
 
 
 
