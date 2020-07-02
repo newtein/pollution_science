@@ -7,12 +7,13 @@ import numpy as np
 
 
 class CombineData:
-    def __init__(self, pollutant, start_date="01-12-2019", end_date="15-06-2020", observation_type="daily"):
+    def __init__(self, pollutant, start_date="01-01-2020", end_date="15-06-2020", observation_type="daily"):
         self.pollutant = pollutant
         self.start_date = start_date
         self.end_date = end_date
         self.observation_type = observation_type
         self.years = self.get_years()
+        self.label = 'First Max Value'
 
     @staticmethod
     def get_year(year):
@@ -38,7 +39,7 @@ class CombineData:
         start_obj, end_obj = self.get_date_obj(self.start_date), self.get_date_obj(self.end_date)
         date_key = 'Date Local'
         df = df[(df[date_key]>=start_obj) & (df[date_key]<=end_obj)]
-        df = self.add_detrended_values(df, '1st Max Value')
+        df = self.add_detrended_values(df, self.label)
         return df
 
     def get_indexed_dict_obj(self, key, select_columns=None):
@@ -54,12 +55,12 @@ class CombineData:
         start_obj, end_obj = self.get_date_obj(self.start_date), self.get_date_obj(self.end_date)
         date_key = 'Date Local'
         df = df[(df[date_key]>=start_obj) & (df[date_key]<=end_obj)]
-        df = self.add_detrended_values(df, '1st Max Value')
+        df = self.add_detrended_values(df, self.label)
         dict_obj = {}
         nodes = df[key].unique().tolist()
         for node in nodes:
             dict_obj[node] = df[df[key]==node][select_columns] if select_columns else df[df[key]==node]
-        return nodes, dict_obj
+        return nodes, dict_obj, df
 
     def add_detrended_values(self, df, colname):
         pp = PreprocessTimeseries()

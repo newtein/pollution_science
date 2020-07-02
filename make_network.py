@@ -48,6 +48,9 @@ class MakeNetwork:
         #report['haversine'] = haversine(lat_lon_1, lat_lon_2)
         return report
 
+    def get_sites_from_county_code(self, county_code):
+        return list(self.df[self.df['County Code']==county_code]['id'].unique())
+
     def calculate_weights(self):
         edges = {}
         for i in range(self.n):
@@ -98,4 +101,4 @@ class MakeNetwork:
 
 if __name__ == "__main__":
     obj = MakeNetwork('PM2')
-    print (obj.calculate_weights())
+    print (obj.get_sites_from_county_code())

@@ -5,7 +5,7 @@ from copy import copy
 
 class FilterData:
     def __init__(self, pollutant, year=None, observation_type="daily", start_date="01-12-2019",
-                 end_date="15-06-2020", index_col = None):
+                 end_date="15-06-2020", index_col = None, fixed_where_payload = {}):
         self.pollutant = pollutant
         self.start_date = start_date
         self.end_date = end_date
@@ -18,6 +18,13 @@ class FilterData:
                                   observation_type=observation_type).get_pandas_obj()
         if self.index_col:
             self.df = self.df.set_index(self.index_col)
+        if fixed_where_payload:
+            for col_name, col_value in fixed_where_payload.items():
+                if col_name in self.index_col:
+                    self.df = self.df[self.df.index == col_value]
+                else:
+                    self.df = self.df[self.df[col_name] == col_value]
+            
 
     def filter_df(self, select_columns, where_payload):
         df = copy(self.df)

@@ -51,7 +51,7 @@ class TSSimilarityMetrics:
             compute_path = True)
         """
         try:
-            settings = pydtw.Settings(compute_path=False)
+            settings = pydtw.Settings(compute_path=False, norm=True)
             return pydtw.dtw(self.x, self.y, settings).get_dist()
         except:
             return None
