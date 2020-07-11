@@ -1,19 +1,16 @@
 from combine_data import CombineData
 import datetime
 import pandas as pd
-from filter_data import FilterData
-from ts_similarity_metrics import TSSimilarityMetrics
-from preprocess_timeseries import PreprocessTimeseries
 from calculate_similarity import TSSimilarity
 import csv
 import networkx
 from haversine import haversine
 import time
-
+import os
 
 class MakeNetworkUsingDictObj:
     def __init__(self, pollutant, observation_type='daily', start_date="01-01-2020", end_date="15-06-2020",
-                 min_n_for_match=10):
+                 min_n_for_match=8):
         self.pollutant = pollutant
         self.start_date = start_date
         self.end_date = end_date
@@ -81,7 +78,11 @@ class MakeNetworkUsingDictObj:
         return
 
     def write_edges_in_file(self, edges):
-        fname = "files/{}_{}_{}.csv".format(self.pollutant, self.start_date, self.end_date)
+        try:
+            os.mkdir("files/{}".format(self.pollutant))
+        except:
+            pass
+        fname = "files/{}/{}_{}_{}.csv".format(self.pollutant, self.pollutant, self.start_date, self.end_date)
         f = open(fname, "w", newline='')
         headers = ["site_id_1", "site_id_2", 'correlation', 'euclidian', 'dtw', 'cdtw', 'haversine',
                    'max_value_1', 'max_value_2']

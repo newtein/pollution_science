@@ -1,10 +1,12 @@
 import networkx as nx
 import datetime
 import time
+import os
 import pandas as pd
 from weekly_network_using_dict_object import WeeklyNetworkUsingDictObj
 import haversine
 import numpy as np
+import math
 
 
 class NetworkCentralities:
@@ -25,10 +27,11 @@ class NetworkCentralities:
     def _validate_15_day_correlation(x):
         """
         98% significance
+        # if x>=0.3506 or x<=-0.3506
         """
-        if x>=0.3506:
-            return True
-        return False
+        if -0.3506 <= x <= 0.3506:
+            return False
+        return True
 
     @staticmethod
     def _validate_all(x):
@@ -49,7 +52,7 @@ class NetworkCentralities:
         return x.strftime("%d-%m-%Y")
 
     def get_filename(self, start, end):
-        return "{}/{}_{}_{}.csv".format(self.file_path, self.pollutant, start, end)
+        return "{}/{}/{}_{}_{}.csv".format(self.file_path, self.pollutant, self.pollutant, start, end)
 
     def read_file(self, fname):
         return pd.read_csv(fname)
@@ -111,12 +114,14 @@ class NetworkCentralities:
         for index, row in df.iterrows():
             nodeA, nodeB = row[nodex], row[nodey]
             w = row[weight]
-            w = self.calculate_impact(weight, row, w)
             if self._validate_all(w):
-                if not validation:
+                if validation is None:
+                    w = self.calculate_impact(weight, row, w)
                     G.add_edge(nodeA, nodeB, weight=w)
                 else:
                     if validation(w):
+                        w = self.calculate_impact(weight, row, w)
+                        w = abs(w)
                         G.add_edge(nodeA, nodeB, weight=w)
         return G
 
@@ -153,14 +158,18 @@ class NetworkCentralities:
             write_obj.append(dict_obj)
         if write_obj:
             df = df.append(write_obj)
+        try:
+            os.mkdir("network_centralities/files/{}".format(self.pollutant))
+        except:
+            pass
         df.to_csv("{}/{}".format("network_centralities", fname), index=False)
 
     def begin(self):
         validations = {
             "correlation": self._validate_15_day_correlation
         }
-        startt = time.time()
         for index, week_pair in enumerate(self.week_pairs):
+            startt = time.time()
             start, end = week_pair[0], week_pair[1]
             fname = self.get_filename(start, end)
             df = self.read_file(fname)
@@ -168,6 +177,7 @@ class NetworkCentralities:
             df.to_csv(fname.replace(".csv", "_norm.csv"), index=False)
             print("Data fetched")
             report_across_metric = {}
+            # , "euclidian_simlarity","dtw_simlarity","cdtw"
             for metric in ["correlation", "euclidian_simlarity","dtw_simlarity","cdtw"]:
                 G = self.create_network(df, 'site_id_1', 'site_id_2', metric, validation=validations.get(metric))
                 print("Network created")
@@ -176,7 +186,8 @@ class NetworkCentralities:
             self.write_centralities(fname, report_across_metric)
             endt = time.time()
             print("Done {}/{} in {} sec.".format(index, len(self.week_pairs), endt-startt))
-            time.sleep(19)
+            # time.sleep(19)
+
 
     def memorize(self, name, value):
         self.memory[name] = value
@@ -196,5 +207,5 @@ if __name__ == "__main__":
     AIR Pollution data till: 30-05-2020
     start_date="08-01-2019", end_date="30-05-2020"
     """
-    obj = NetworkCentralities('PM2', start_date="08-01-2020", end_date="06-04-2020")
+    obj = NetworkCentralities('O3', start_date="30-05-2020", end_date="28-06-2020")
     print(obj.begin())

@@ -27,7 +27,7 @@ class WeeklyNetworkUsingDictObj:
         week_pairs = []
         for n in range(0, int((self.end_obj - self.start_obj).days)):
             start_date = self.get_date_str(self.start_obj + datetime.timedelta(n))
-            end_date = self.get_date_str(self.start_obj + datetime.timedelta(n+15))
+            end_date = self.get_date_str(self.start_obj + datetime.timedelta(n+14))
             week_pair = (start_date, end_date)
             week_pairs.append(week_pair)
         return week_pairs
@@ -35,7 +35,7 @@ class WeeklyNetworkUsingDictObj:
     def create_weekly_network(self):
         for index, week_pair in enumerate(self.week_pairs):
             start = time.time()
-            obj = MakeNetworkUsingDictObj('PM2', start_date=week_pair[0], end_date=week_pair[1])
+            obj = MakeNetworkUsingDictObj(self.pollutant, start_date=week_pair[0], end_date=week_pair[1])
             obj.calculate_weights()
             end = time.time()
             print("Done week {}/{} in {}".format(index, len(self.week_pairs), end-start))
@@ -48,5 +48,5 @@ if __name__ == "__main__":
     AIR Pollution data till: 30-05-2020
     start_date="08-01-2020", end_date="30-05-2020"
     """
-    obj = WeeklyNetworkUsingDictObj('PM2', start_date="08-01-2020", end_date="28-06-2020")
+    obj = WeeklyNetworkUsingDictObj('O3', start_date="08-01-2020", end_date="28-06-2020")
     print (obj.create_weekly_network())
