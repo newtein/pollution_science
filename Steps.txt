@@ -1,0 +1,14 @@
+Part-1
+Involves combining Materological data, pollution data and covid data
+1) Download met data using - download_data_for_R_analysis.py
+2) Download pollution data using - api_query_writer.py (remember pasting the data on current location)
+3) Combine all data - create_data_for_r_pipelined.py
+4) Run R file - gam_model.R
+5) Results will get saved
+
+Part-2
+Involves creation of 14 day lagged network for each day, calculation of its centralities, and combining the data of all the pollutants
+1) Run weekly_network_using_dict_object.py, check paths
+2) Run network_centralities.py
+3) combine data for all days: create_data_for_network_analysis.py
+4) Run make_final_network_analysis_file.py.
