@@ -86,7 +86,7 @@ class PlotBaseMap:
                 del self.nodeNames[_id]
             except:
                 pass
-        cmap = plt.get_cmap("Purples")
+        cmap = plt.get_cmap("GnBu")
         nodeList = list(self.nodeNames)
         edgewidth_Amplitude = [d['weight'] for (u, v, d) in self.G.edges(data=True)]
         pos = nx.get_node_attributes(self.G, 'pos')
@@ -106,7 +106,7 @@ class PlotBaseMap:
         shp_info = self.Bmap_Amplitude.readshapefile('st99_d00', 'states', drawbounds=True)
 
         ax = plt.gca()  # get current axes instance
-        ax.text(-0.05, 0.98, self.label, transform=ax.transAxes, size=15, color='purple')
+        ax.text(-0.05, 0.98, self.label, transform=ax.transAxes, size=15, color='green')
 
         for _, seg in enumerate(self.Bmap_Amplitude.states):
             # skip DC and Puerto Rico.

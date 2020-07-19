@@ -1,5 +1,30 @@
 import pandas as pd
 from read_data import ReadData
+import math
+
+county_df = pd.read_csv("data/covid_data/us_county.csv")
+county_data = county_df[county_df['county'].isin(['Los Angeles County', 'Ventura County'])]
+pollution_lookup = {row['county'].replace('County', '').strip(): row['population'] for index, row in
+                    county_data.iterrows()}
+
+
+def get_each_day_cases(y):
+    t = [y[i] - y[i - 1] if i != 0 else y[i] for i in range(0, len(y))]
+    return [i if i >= 0 else 0 for i in t]
+
+
+def cases_by_pop(row):
+    county = row['county']
+    population = pollution_lookup.get(county, 1)
+    cases = row['cases'] / float(population)
+    return cases * 100
+
+
+def deaths_by_pop(row):
+    county = row['county']
+    population = pollution_lookup.get(county, 1)
+    deaths = row['deaths'] / float(population)
+    return deaths * 100
 
 
 class RDataCreationPipeline:
@@ -15,9 +40,12 @@ class RDataCreationPipeline:
         }
 
         self.path = "api_data/R_data"
-        self.save_path = "r_files"
+        self.save_path = "r_files/source_file_SA4"
         self.state_code = "06"
         self.filter_city_list = ['037', '111']
+        # For SA2
+        # self.filter_city_list = ['111']
+
         self.mat_df = self.create_mat_df()
         self.pol_df = self.create_pol_df()
         self.pol_df = self.pol_df.merge(self.mat_df, on=('date', 'county'))
@@ -37,12 +65,25 @@ class RDataCreationPipeline:
     def create_covid_data(self):
         covid_data = pd.read_csv("data/covid_data/covid_us_county.csv")
         covid_data['date'] = pd.to_datetime(covid_data['date'], format="%Y-%m-%d")
+        covid_data['county'] = covid_data['county'].fillna('NA')
+
+        covid_data['cases'] = covid_data.groupby('county')['cases'].transform(lambda x: get_each_day_cases(x.tolist()))
+        covid_data['cases'] = covid_data['cases'].fillna(0)
+        covid_data['deaths'] = covid_data.groupby('county')['deaths'].transform(lambda x: get_each_day_cases(x.tolist()))
+        covid_data['deaths'] = covid_data['deaths'].fillna(0)
+
         covid_data['cases'] = covid_data['cases'] + 1
         covid_data['deaths'] = covid_data['deaths'] + 1
+
+        # For SA 4
+        covid_data['cases'] = covid_data.apply(cases_by_pop, axis=1)
+        covid_data['deaths'] = covid_data.apply(deaths_by_pop, axis=1)
+
         covid_data['cases_shifted'] = covid_data.groupby('county')['cases'].shift(1)
         covid_data['deaths_shifted'] = covid_data.groupby('county')['deaths'].shift(1)
         covid_data['cases_shifted'] = covid_data['cases_shifted'].fillna(1)
         covid_data['deaths_shifted'] = covid_data['deaths_shifted'].fillna(1)
+
         return covid_data
 
     def create_pol_df(self):
@@ -73,6 +114,7 @@ class RDataCreationPipeline:
             code = self.parameter_map[parameter]
             fname = "{}/daily_{}_2020_{}.csv".format(self.path, code, self.state_code)
             df = ReadData(parameter, year='2020', filename=fname).get_pandas_obj()
+            print(parameter, df['Units Of Measure'].iloc[1])
             s = df['County'].unique().tolist()
             if not cities:
                 cities = set(s)
@@ -114,6 +156,8 @@ if __name__ =="__main__":
             "Pressue": "68108"
         }
     """
-    for pollutant in [ "S02", "NO2", "CO"]:
+
+
+    for pollutant in [ "PM2", "PM10", "O3"]:
         for lag in ["0-7", "0-14", "0-21"]:
             obj = RDataCreationPipeline(pollutant, lag)

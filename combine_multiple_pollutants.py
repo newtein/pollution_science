@@ -12,6 +12,7 @@ class CombineMultiplePollutants:
 
     def read_pollutant(self, pollutant):
         pol_df = ReadData(pollutant, year='2020').get_pandas_obj()
+        print(pollutant, pol_df['Units Of Measure'].iloc[1])
         pol_df = pol_df[pol_df['State Code'] == self.state_code]
         pol_df = pol_df[pol_df['County Code'].isin(self.filter_city_list)]
         pol_df = pol_df.groupby(['Date Local', "County"]).agg({'First Max Value': 'max'}).reset_index()
@@ -27,6 +28,8 @@ class CombineMultiplePollutants:
             pol_df['pollutant'] = \
                 pol_df.groupby(['County'])['First Max Value'].transform(lambda x: x.rolling(21).mean()).reset_index()[
                     'First Max Value']
+        else:
+            pol_df['pollutant'] = pol_df['First Max Value']
         res_df_1 = pol_df[['Date Local', "County", "pollutant"]]
         res_df_1.columns = ['date', 'county', pollutant]
         return res_df_1

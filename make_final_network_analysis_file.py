@@ -78,6 +78,7 @@ class MakeFinalNetworkAnalysisFile:
             code = self.parameter_map[parameter]
             fname = "{}/daily_{}_2020_{}.csv".format(self.path, code, self.state_code)
             df = ReadData(parameter, year='2020', filename=fname).get_pandas_obj()
+            print(parameter, df['Units Of Measure'].iloc[1])
             s = df['County'].unique().tolist()
             if not cities:
                 cities = set(s)
@@ -102,6 +103,7 @@ class MakeFinalNetworkAnalysisFile:
         tdf['date_number'] = list(range(1, tdf.shape[0] + 1))
         df['city'] = df['county'].apply(lambda x: 1 if x == 'Los Angeles' else 2)
         df = df.merge(tdf[['date', 'date_number']], on='date')
+        df['date'] = pd.to_datetime(df['date'], format="%Y-%m-%d")
         return df
 
     def agg_dict(self):
