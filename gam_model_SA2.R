@@ -6,9 +6,9 @@ lag_list <- c("0-7", "0-14", "0-21")
 for (pollutant in pollutants){
   for (lag_t in lag_list){
     print(paste(pollutant, lag_t))
-    fname = "D:/CovidPollution/r_files/R_data"
-    wfname = "D:/CovidPollution/r_files/model_summary/gam_summary"
-
+    fname = "D:/CovidPollution/r_files/source_file_SA2/R_data"
+    wfname = "D:/CovidPollution/r_files/model_summary_SA2/gam_summary"
+    
     cases_fname = paste(fname, pollutant, state_code, lag_t, "COVID_cases.csv", sep="_")
     deaths_fname = paste(fname, pollutant, state_code, lag_t, "COVID_mortality.csv", sep="_")
     cases_wfname = paste(wfname, pollutant, state_code, lag_t, "COVID_cases.csv", sep="_")
@@ -25,13 +25,13 @@ for (pollutant in pollutants){
     sink(cases_wfname)
     print(summary(gam_y_cases))
     sink()
-
+    
     gam_y_deaths <- gam(formula = formula_2, family = gaussian(), data=df_deaths)
     print("DEATHS")
     sink(deaths_wfname)
     print(summary(gam_y_deaths))
     sink()
-
+    
     print(paste(pollutant, lag_t))
     
   }

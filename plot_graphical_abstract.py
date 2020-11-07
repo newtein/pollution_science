@@ -59,7 +59,7 @@ class PlotBaseMap:
         return False
 
     def make_network(self):
-        resolution = 'l'
+        resolution = 'h'
         Bmap_Amplitude = Basemap(projection='merc', llcrnrlon=lower_left_lon, llcrnrlat=lower_left_lat,
                                  urcrnrlon=upper_right_lon, urcrnrlat=upper_right_lat, lat_ts=0, resolution=resolution,
                                  suppress_ticks=True)
@@ -94,6 +94,7 @@ class PlotBaseMap:
         nodeColor = ['r' if i in self.site_1 else 'grey' for i in nodeList]
         nodeSize = [7 if i in self.site_1 else 2 for i in nodeList]
         plt.close()
+        plt.subplots(figsize=(13, 5))
         plt.axis('off')
         nx.draw_networkx_nodes(self.G, pos, node_color=nodeColor, nodelist=nodeList, node_size=nodeSize, alpha=0.85)
         edgeColor = []
@@ -106,7 +107,7 @@ class PlotBaseMap:
         shp_info = self.Bmap_Amplitude.readshapefile('st99_d00', 'states', drawbounds=True)
 
         ax = plt.gca()  # get current axes instance
-        ax.text(-0.05, 0.98, self.label, transform=ax.transAxes, size=15, color='green')
+        # ax.text(-0.05, 0.98, self.label, transform=ax.transAxes, size=15, color='green')
 
         for _, seg in enumerate(self.Bmap_Amplitude.states):
             # skip DC and Puerto Rico.
@@ -114,18 +115,16 @@ class PlotBaseMap:
             ax.add_patch(poly)
 
         plt.axis('off')
-        if self.pollutant == 'PM2':
-        	self.pollutant = "PM2.5"
 
-        plt.title(self.pollutant)
+        plt.title("Emission Network")
         # plt.text(40, 37, "Degree Distribution", fontsize=17, ha="center")
-        plt.savefig("basemap/{}.png".format(self.pollutant), dpi=600, bbox_inches='tight')
+        plt.savefig("basemap/grahicl_ab{}.png".format(self.pollutant), dpi=1200, bbox_inches='tight')
 
 if __name__ == "__main__":
     """
     path = 
     """
-    pollutants = ["PM2", "PM10", "O3"]
+    pollutants = ["O3"]
     label = ["a)", "b)", "c)"]
     for index, pollutant in enumerate(pollutants):
         filename ="files/{}/{}_24-03-2020_07-04-2020.csv".format(pollutant, pollutant)
